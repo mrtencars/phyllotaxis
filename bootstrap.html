@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <title>Recurrence Plot</title>
+    <script type="text/javascript" src="./js/Cindy.js"></script>
+    <link rel="stylesheet" href="./css/cindy.css">
+</head>
+<body style="font-family:Arial;">
+
+<script id='csinit' type='text/x-cindyscript'>
+
+</script>
+
+<script id='csdraw' type='text/x-cindyscript'>
+     
+</script>
+
+<script id='csmove' type='text/x-cindyscript'>
+
+</script>
+<div  id="CSCanvas"></div>
+<script type="text/javascript">
+    const gslp=[
+        {name:"B", type:"Free", pinned:false, size:3, pos:[0,0]},
+    ];
+
+    const cdy = CindyJS({
+        ports: [{
+            id: "CSCanvas",
+            width: 500,
+            height: 500,
+            transform: [{
+                visibleRect: [-5,5,5,-5]
+            }],
+            background: "rgb(255,255,250)"
+        }],
+        scripts: "cs*",
+        language: "de",
+        autoplay: false,
+        geometry: gslp
+    });
+</script>
+</body>
+</html>

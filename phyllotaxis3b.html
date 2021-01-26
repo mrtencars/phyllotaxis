@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>phyllotaxis_gitter.cdy</title>
+
+    <link rel="stylesheet" href="https://cindyjs.org/dist/v0.8/CindyJS.css">
+    <script type="text/javascript" src="https://cindyjs.org/dist/v0.8/Cindy.js"></script>
+    <script id="csinit" type="text/x-cindyscript">
+ // OBJEKTE DEFINIEREN
+    PointZL=[-0.5,0]; // Zylinderpunkt Links
+    PointZR=[0.5,0];  // Zylinderpunkt Rechts
+    PointCL1=[-0.5,1]; // Kreispunkt Links 1
+    PointO=[0,0]; //Koordinatenursprung
+    PointCR1=[0.5,1]; // Kreispunkt Rechts
+
+	LineZL=join(PointZL,PointCL1); // Zylinderline Links
+    LineZR=join(PointZR,PointCR1); // Zylinderline Rechts
+    LineXAchse=join(PointZL,PointZR);
+
+	//Mittelsenkrechte durch zwei Punkte
+	LineMS(A,B):=(
+		PointMP = A+0.5*(B-A); // Mittelpunkt zwischen A und B
+        LineAB = join(A,B); // Gerade durch A und B
+		perpendicular(PointMP,LineAB); // Mittelsenkrechte von A und B
+	);
+
+	//Nullstelle der Mittelsenkrechten zweier Punkte A,B
+    PointNsMs(A,B):=meet(LineXAchse,LineMS(A,B));
+
+	//Hyperbolischer Mittelpunkt zwischen A und B
+	PointHMP(A,B):=(
+		ComplexZ0 = complex(PointNsMs(A,B)); //Kreismittelpunkt des Kreises durch AB
+		ComplexZ1 = complex(A) - ComplexZ0; // z1
+		ComplexZ2 = complex(B) - ComplexZ0; // z2
+		ArgZ3 = arctan2(ComplexZ1) + 0.5*(arctan2(ComplexZ2)-arctan2(ComplexZ1)); // Argument des Mittelpunktes
+		RadZ3 = |ComplexZ1|; // Radius des Mittelpunktes
+		ComplexZ3 = RadZ3*(cos(ArgZ3)+i*sin(ArgZ3)); // Mittelpunkt als komplexe Zahl
+		gauss(ComplexZ3+ComplexZ0) // Ausgabe
+	);
+
+	//Hyperbolische Line durch zwei Punkte zeichnen
+	drawLineSegment(A,B):= drawarc(A,PointHMP(A,B),B);
+</script>
+    <script id="csdraw" type="text/x-cindyscript">
+// FUNDAMENTALBEREICH ZEICHNEN
+drawall([LineZL,LineZR,LineXAchse,PointNsMs(A,B),PointHMP(A,B)]);
+drawLineSegment(A,B);
+</script>
+    <script type="text/javascript">
+        var cdy = CindyJS({
+            scripts: "cs*",
+            defaultAppearance: {
+                dimDependent: 0.7,
+                fontFamily: "sans-serif",
+                lineSize: 1,
+                pointSize: 5.0,
+                textsize: 12.0
+            },
+            angleUnit: "°",
+            geometry: [
+                {name: "A", type: "Free", pos: [4.0, -3.78494623655914, -1.4311827956989251], color: [1.0, 0.0, 0.0], labeled: true},
+                {name: "B", type: "Free", pos: [2.521893313298259, 2.600631104432768, 4.0], color: [1.0, 0.0, 0.0], labeled: true}
+            ],
+            ports: [{
+                id: "CSCanvas",
+                width: 680,
+                height: 302,
+                transform: [{visibleRect: [-6.716754320060103, 7.137490608564986, 13.719008264462804, -1.9383921863260698]}],
+                background: "rgb(168,176,192)"
+            }],
+            csconsole: false,
+            cinderella: {build: 1959, version: [3, 0, 1959]}
+        });
+    </script>
+</head>
+<body>
+<div id="CSCanvas"></div>
+</body>
+</html>

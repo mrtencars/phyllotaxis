@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <title>Spiralen</title>
+    <script type="text/javascript" src="./js/Cindy.js"></script>
+    <link rel="stylesheet" href="./css/cindy.css">
+</head>
+<body style="font-family:Arial;">
+
+<script id='csinit' type='text/x-cindyscript'>
+    /*** SYSOUTPUT ***/
+    strOut = "";
+
+    /*** constants ***/
+    defaultColor = [0,0,1];
+    defaultPointSize = 3;
+
+    /*** OBJECTS ***/
+    // complex number with color and text
+    newCTPoint(Cnumber, Color, Text):=({"z": Cnumber, "c": Color, "t": Text});
+
+    // Cylindrical lattice with divergence angle and height h
+    newCLattice(theta,h):=({"angle": theta, "height": h});
+
+    // annotations
+    newAnnotation(pointPosition,strText):=(
+        {"pos": pointPosition, "text": strText}
+    );
+
+    /** METHODS ***/
+    PlaneToCylinder(CTPoint):=(
+        apply(CTPoint,val,key,
+            if(key == "z",
+                val = complex([-0.5+arctan2(val)/(2*pi),|val|]),
+                val = val
+            );
+        );
+    );
+
+    // creates a scaled spiral with a given radius
+    createSpiralR(CLattice,scaling,R):=(
+        r = CLattice.height;
+        phi = CLattice.angle*360°;
+        z = r*exp(i*phi);
+        l = 1;
+        spiral = [newCTPoint(complex([0,0]),defaultColor,text(0))];
+        while(|z|<R,
+            spiral = append(spiral,newCTPoint(z,defaultColor,text(l)));
+            l = l+1;
+            z = l^scaling*r*exp(i*l*phi);
+        );
+        spiral
+    );
+
+    // creates points of a cylindrical lattice with a given max height
+    createCLatticePointsH(CLattice,maxheight,scaling):=(
+        lattice = [newCTPoint(complex([0,0]),defaultColor,text(0))];
+        h = CLattice.height;
+        phi = CLattice.angle;
+        z = complex([phi-floor(0.5+phi),h*scaling]); strOut= strOut + text(gauss(z));
+        l = 1;
+        while(im(z)<maxheight,
+            lattice = append(lattice,newCTPoint(z,defaultColor,text(l)));
+            l = l+1;
+            z = complex([l*phi-floor(0.5+l*phi),l*h*scaling]);
+        );
+        lattice
+    );
+
+    // draw a list of CTPoints
+    drawLattice(lattice,textsize,offset,psize):=(
+        forall(lattice,point,
+            draw(gauss(point.z),color->point.c,size->psize);
+            drawtext(gauss(point.z)+[offset,offset],point.t,size->textsize)
+        );
+    );
+
+    /**** GRAPHICS ****/
+
+    // draw cylinder
+    drawCylinder(varHeight,intLineSize):=(
+        linesize(intLineSize);
+        linecolor([0,0,0]);
+        draw([(0.5,varHeight),(0.5,0)]);
+        draw([(-0.5,varHeight),(-0.5,0)]);
+        draw(join([0,0],[1,0]));
+        greset();
+    );
+
+    // draw axis
+    drawAxis(strOriantation,arrAnnotations,dblLinesize,dblTextsize,epsilon,offset,arrColor):=(
+        linesize(dblLinesize);
+        forall(arrAnnotations,annotation,
+            P = annotation.pos; // point
+            if(strOriantation=="horizontal",
+                draw((P.x,epsilon),(P.x,-epsilon),color->arrColor);
+                drawtext((P.x-offset,P.y-offset),annotation.text,size->dblTextsize);
+            );
+            if(strOriantation=="vertical",
+                draw((-epsilon,P.y),(epsilon,P.y),color->arrColor);
+                drawtext((P.x-offset,P.y-offset),annotation.text,size->dblTextsize);
+            );
+        );
+        greset();
+    );
+
+    /**** CANVAS ****/
+    createimage("Plane",500,500);
+    createimage("Cylinder",100,500);
+    createimage("SysOutput",700,100);
+</script>
+
+<script id='csdraw' type='text/x-cindyscript'>
+    clear(strOut);
+    strOut = "";
+    scale = 0.5+0.5*|D-B|/|C-B|;
+    lattice = newCLattice(A.x/4,A.y/4);
+    spiral = createSpiralR(lattice,scale,5);
+    cylinder = createCLatticePointsH(lattice,5,1);
+    xAxis = [
+        newAnnotation([-2,0],"-180°"),
+        newAnnotation([0,0],"O"),
+        newAnnotation([2,0],"180°"),
+        newAnnotation([4,0],"360°")
+    ];
+    drawAxis("horizontal",xAxis,2,14,0.1,0.3,(0,0,0));
+
+    drawtext(A.xy+[0.1,0.1],text(360°*A.x/4));
+    strOut = strOut + " $A_1=$ " + text(A.xy);
+
+    clearimage("Plane");
+    canvas([-5,-5],[5,-5],"Plane",
+        drawLattice(spiral,9,0.0570,5);
+    );
+    drawimage([2.5,0],[12.5,0],"Plane");
+
+    clearimage("Cylinder");
+    canvas([-0.5,0],[0.5,0],"Cylinder",
+        h = 5; // height of the cylinder
+        drawLattice(cylinder,h,0.1,1.1);
+        drawCylinder(h,2);
+    );
+    drawimage([-2,0],[2,0],"Cylinder");
+
+    clearimage("SysOutput");
+    canvas([0,0],[5,0],"SysOutput",
+        //drawtext([0,0],strOut,size->8);
+    );
+    drawimage([-1,-1],[13,-1],"SysOutput");
+
+</script>
+
+<script id='csmove' type='text/x-cindyscript'>
+
+</script>
+<div  id="CSCanvas"></div>
+<script type="text/javascript">
+    const gslp=[
+        {name:"A", type:"Free", pinned:false, size:5, pos:[0.5,0.5]},
+        {name:"B", type:"Free", visible: false, pinned:false, size:3, pos:[4,-.5]},
+        {name:"C", type:"Free", visible: false, pinned:false, size:3, pos:[12,-.5]},
+        {name:"a", type:"Segment", args: [ "C", "B" ],color: [0,0,0], labeled: false},
+        {name:"D", type:"PointOnSegment", pinned:false, size:3, args: ["a"], pos:[11,-1]},
+        {name:"Text0", type: "Text", color: [0,0,0], size:18, text: "Vergrößerung", pos:[7,-1]},
+        {name:"Text1", type: "Text", color: [0,0,0], size:18, text: "Winkel", pos:[11.5,0.1]},
+        {name:"Text2", type: "Text", color: [0,0,0], size:18, text: "Radius", pos:[0.1,9.7]}
+    ];
+
+    const cdy = CindyJS({
+        ports: [{
+            id: "CSCanvas",
+            width: 800,
+            axes: true,
+            height: 600,
+            transform: [{
+                visibleRect: [-2.5,10,12.5,-1]
+            }],
+            background: "rgb(255,255,255)"
+        }],
+        scripts: "cs*",
+        language: "de",
+        autoplay: false,
+        defaultAppearance: {
+            dimDependent: 0.7,
+            fontFamily: "sans-serif",
+            lineSize: 1,
+            pointSize: 5.0,
+            textsize: 12.0
+        },
+        angleUnit: "°",
+        geometry: gslp,
+        use:["katex"]
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <title>Gitter</title>
+    <script type="text/javascript" src="./js/Cindy.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<h1>CindyJS: Simple Geometry</h1>
+
+<script id='csinit' type='text/x-cindyscript'>
+    // OBJEKTE DEFINIEREN
+    PointZL=[-0.5,0]; // Zylinderpunkt Links
+    PointZR=[0.5,0];  // Zylinderpunkt Rechts
+    PointCL1=gauss(exp(2/3*i*pi)); // Kreispunkt Links 1
+    PointO=[0,0]; //Koordinatenursprung
+    PointCR1=gauss(exp(1/3*i*pi)); // Kreispunkt Rechts
+
+	LineZL=join(PointZL,PointCL1); // Zylinderline Links
+    LineZR=join(PointZR,PointCR1); // Zylinderline Rechts
+    LineXAchse=join(PointZL,PointZR);
+
+    //METHODEN
+
+    //Kombinationen der Form [i,j] mit 1<=i,j<=n
+    listCombinations(n):=(
+        liste = combinations(1..n,2);
+        liste = liste ++ apply(liste,reverse(#));
+        append(liste,[1,1])
+    );
+
+    //Euklidischer Algorithmus
+    ggT(n,m):=(
+        M=[n,m];
+        while(M_2!=0,
+            q = floor(M_1/M_2);
+            M = [[0,1],[1,-q]] * M;
+        );
+        M_1
+    );
+
+    // Bruch kürzen
+    shorten(n,m):=(
+        while(ggT(n,m)!=1,
+            l = ggT(n,m);
+            n = n/l;
+            m = m/l;
+        );
+       [n,m]
+    );
+
+    // Drehung um 90° GUZ
+    bot(v):=(-v.y,v.x);
+
+    // Schnittpunkt der Geraden AB und CD
+    Schnittpunkt(A,B,C,D):=(
+		a = A.xy;
+		v = B.xy-A.xy;
+
+		b = C.xy;
+		w = D.xy-C.xy;
+
+		s = (1/(v*bot(w)))*((b*bot(w))*v-(a*bot(v))*w)
+    );
+
+    // Erweiterter Euklidischer Algorithmus
+    extggT(n,m):=(
+	    M = [[n,1,0],[m,0,1]];
+	    while(M_2_1 != 0,
+		    q = floor(M_1_1/M_2_1);
+		    M = [[0,1],[1,-q]] * M;
+	    );
+	    M_1
+    );
+
+
+    //Windungszahl
+    delta(z):=floor(re(z));
+
+    // Projektion auf den Zylinder
+    projCyl(z):=z-delta(z)-0.5;
+
+    // Projektion von Zylinder auf Ebene
+    projPlane(z):= (im(z)+0.5)*exp(2*pi*i*re(z));
+
+    //Gitter der Form (z,1), h ist die Höhe und b die Breite
+    //des sichtbaren Fensters
+    LatticeC(A,b,h):=(
+	    P = (0,0); // Ursprung
+	    PunktListe = []; // Liste aller zu zeichnenden Gitterpunkte
+	    while(P.y<=h,
+		    // Anzahl der Schritte nach Rechts und Links
+		    SchritteRechts = floor(|b-P.x|);
+		    SchritteLinks = floor(|-b-P.x|);
+
+		    //Gitterpunkte hinzufügen
+		    forall(0..SchritteRechts,l,  //Rechts
+			    Pneu = P+(l,0);
+			    if(|Pneu.x|<=b,PunktListe = append(PunktListe,complex(Pneu)));
+		    );
+
+		    forall(0..SchritteLinks,l,  //Links
+			    Pneu = P-(l+1,0);
+			    if(|Pneu.x|<=b,PunktListe = append(PunktListe,complex(Pneu)));
+		    );
+
+		    //Neuer Schritt
+		    if(A.x==0, A.x = 0.1);
+		    P = P + A.xy;
+	    );
+	    PunktListe
+    );
+
+    //Gitterbasis eines Gitters der Form \Lambda(z,1)
+    BasisLattice(Gitter):=(
+        // Ursprung entfernen
+        Gitter = Gitter -- [0];
+
+        //Sortierung der Gitterpunkte nach ihrer Länge
+        Gitter = sort(Gitter,|gauss(#)|);
+
+        // Der erste Basisvektor ist der mit der kleinsten Norm.
+        v1 = Gitter_1;
+
+        // Vielfache von v1 werden aus der Punktmenge entfernt
+        forall(Gitter,if(isinteger(#/v1) % isinteger(v1/#),Gitter = Gitter -- [#]));
+
+        // Nun wird wieder das kleinste Element als zweiter Basisvektor entnommen
+        v2 = sort(Gitter,|gauss(#)|)_1;
+
+        // Ausgabe (sortiert nach Argument)
+        Sort([v1,v2],arg(#));
+    );
+
+    //Gitterbasis darstellen
+    drawBasis(Basis):=(
+        // Jeden Basisvektor zeichnen
+        draw((0,0),gauss(Basis_1),
+	        color->0,
+	        size->2,
+	        alpha->0.5,
+	        arrow->true,
+	        arrowshape->"full",
+	        arrowsides->"==>",
+	        arrowsize->1.5,
+	        arrowposition->1
+	    );
+
+	    draw((0,0),gauss(Basis_2),
+	        color->0,
+	        size->2,
+	        alpha->0.5,
+	        arrow->true,
+	        arrowshape->"full",
+	        arrowsides->"==>",
+	        arrowsize->1.5,
+	        arrowposition->1
+	    );
+	);
+
+	//Parastichie-Zahlen einer Basis bestimmen
+	ParastichyNumbers(GitterBasis,z):=(
+	    pnumbers=[];
+	    test = 0;
+	    forall(GitterBasis,
+            // Schnittpunkt kz der Geraden VV+1 und z2z als komplexe Zahl
+            kz = complex(Schnittpunkt(gauss(#),gauss(#+1),gauss(z),gauss(2*z)));
+            test = kz/z;
+            // Nun Teilen wir durch z um k zu erhalten
+            pnumbers = append(pnumbers,kz/z);
+        );
+        //Ausgabe
+        pnumbers
+	);
+
+	//Mittelsenkrechte durch zwei Punkte
+	LineMS(A,B):=(
+		PointMP = A+0.5*(B-A); // Mittelpunkt zwischen A und B
+        LineAB = join(A,B); // Gerade durch A und B
+		perpendicular(PointMP,LineAB); // Mittelsenkrechte von A und B
+	);
+
+	//Nullstelle der Mittelsenkrechten zweier Punkte A,B
+    PointNsMs(A,B):=meet(LineXAchse,LineMS(A,B));
+
+	//Hyperbolischer Mittelpunkt zwischen A und B
+	PointHMP(A,B):=(
+		if(A.x != B.x, // Wenn die Punkte nicht direkt übereinander liegen
+            ComplexZ0 = complex(PointNsMs(A,B)); //Kreismittelpunkt des Kreises durch AB
+            ComplexZ1 = complex(A) - ComplexZ0; // z1
+            ComplexZ2 = complex(B) - ComplexZ0; // z2
+            ArgZ3 = arctan2(ComplexZ1) + 0.5*(arctan2(ComplexZ2)-arctan2(ComplexZ1)); // Argument des Mittelpunktes
+            RadZ3 = |ComplexZ1|; // Radius des Mittelpunktes
+            ComplexZ3 = RadZ3*(cos(ArgZ3)+i*sin(ArgZ3)); // Mittelpunkt als komplexe Zahl
+            gauss(ComplexZ3+ComplexZ0), // Ausgabe
+
+            A.xy + 1/2*(B.xy-A.xy) // Ansonsten wird der "normale" Mittelpunkt angegeben.
+        )
+	);
+
+	//Hyperbolische Line durch zwei Punkte zeichnen
+	drawLineSegment(A,B):= (
+	    if(A.x == B.x,
+	        draw([A,B]),
+	        drawarc(A,PointHMP(A,B),B)
+	    );
+	);
+
+	// SPEZIELL ZU DEN GITTERN
+
+	// knkm berechnen: Suchen kn,km: km*n-kn*m = 1 und kn/n, km/m sind in [0,1]
+	knkm(n,m):=(
+	    // notfalls kürzen
+	    nm = shorten(n,m); // daraus folgt ggT = 1
+
+	    // erweiterter Euklidischer Algorithmus: liefert x,y mit n*x + m*y = ggT(n,m) = 1
+	    xy = extggT(nm_1,nm_2)_[2,3];
+
+	    // dann ist kn = -y und km = x
+	    kn = -xy_2; // -y
+	    km = xy_1;  // x
+
+	    // Normierung:
+	   	while( (kn/n<0 ) % (km/m > 1),
+		    if(kn/n<=0,
+	  	        kn = kn + n;
+	            km = km + m,
+	            if(km/m >= 1,
+	    	        kn = kn - n;
+	                km = km - m
+	            )
+	 	    );
+	    );
+
+	    // Ausgabe
+	    [kn,km]
+	);
+
+    // gnm als Möbiustransformation bestimmen
+	gnm(n,m,kn,km,z):=(
+	    (kn*z-km)/(n*z-m)
+	);
+
+    // Qnm (Viereck) berechnen; Die Eckpunkte werden zeilenweise ausgegeben
+	Qnm(n,m) := (
+        // kn und km bestimmen
+        knkm = knkm(n,m);
+        kn = knkm_1;
+        km = knkm_2;
+
+	    // Die Punkte A und B
+	    zA = exp(2/3*i*pi); // A als komplexe Zahl
+	    zB = exp(1/3*i*pi); // B als komplexe Zahl
+
+	    // Eckpunkte zeilenweise in einer Liste ausgeben
+	    [
+	        gauss(gnm(n,m,kn,km,zA)).xy, // Bild von A
+	        [kn/n,0], // Bild von Unendlich
+	        gauss(gnm(n,m,kn,km,zB)).xy, // Bild von B
+	        [km/m,0] // Bild des Ursprungs
+	    ]
+	);
+
+	// Seiten von Qnm zeichnen
+    drawQnm(n,m):=(
+        P = Qnm(n,m); // Eckpunkte
+        drawLineSegment(P_1,P_2);
+        drawLineSegment(P_2,P_3);
+        drawLineSegment(P_3,P_4);
+        drawLineSegment(P_4,P_1);
+    );
+
+    // Diagonale von A nach B zeichnen
+    drawDiagQnm(n,m) := (
+        P = Qnm(n,m); // Eckpunkte von Qnm
+        drawLineSegment(P_1,P_3);
+        MP = PointHMP(P_1,P_3);
+        drawtext(MP,[n,m],size->10);
+    );
+
+    // FUNDAMENTALBEREICH ZEICHNEN
+    drawQ := (
+        drawall(
+            [
+                draw([PointCL1,(-0.5,1)]), // linker Rand
+                draw([PointCR1,(0.5,1)]),  // rechter Rand
+            ]
+        );
+        drawLineSegment(PointCL1,PointO);
+        drawLineSegment(PointCR1,PointO);
+    );
+
+</script>
+
+<script id='csdraw' type='text/x-cindyscript'>
+    // Gitter erstellen
+    g1 = LatticeC(A,2,1.5);
+
+    createimage("Zylinder",600,400);
+    canvas([-0.5,0],[1,0],"Zylinder",
+        // Zylinder
+        linesize(3);
+        linecolor([0,0,0]);
+        draw([(-0.5,2),PointZL]);
+        draw([(0.5,2),PointZR]);
+
+        // Qnm
+        linesize(1);
+        linecolor([0,0,1]);
+        pointsize(2);
+
+        // Gitter
+        if(A.y>0.01,
+            //g2 = apply(g1,projCyl(#)); // Projektion auf den Zylinder
+            drawall(apply(g1,gauss(#)));
+            GitterBasis = BasisLattice(g1);
+            drawBasis(GitterBasis);
+            drawtext(A.xy+(0.1,0.1), ParastichyNumbers(GitterBasis,complex(A)));
+        );
+        // Reset Grafikeinstellungen
+        greset();
+    );
+    drawimage(B,C,"Zylinder");
+
+    createimage("Ebene",400,400);
+    canvas([-5,-5],[5,-5],"Ebene",
+        textsize(200);
+        pointsize(50);
+        g3 = apply(g1,projPlane(#));
+        drawall(apply(g3,gauss(#)));
+        //drawtext(5*A.xy,5*A.xy);
+        greset();
+    );
+    drawimage(C,D,"Ebene");
+</script>
+
+
+<div id="ZylinderCanvas" style="width:600px; height:600px; border:2px solid #000000"></div>
+
+
+<script type="text/javascript">
+
+    var gslp = [
+        {name:"A", type:"Free", pinned:false, size:3, pos:[-0.4,0.8,1]},
+        {name:"B", type:"Free", pinned:true, size:0, pos:[-0.5,0,1]},
+        {name:"C", type:"Free", pinned:true, size:0, pos:[1,0,1]},
+        {name:"D", type:"Free", pinned:true, size:0, pos:[2,0,1]}
+    ];
+
+    CindyJS({
+        ports: [{
+            id: "ZylinderCanvas",
+            width: 1000,
+            height: 400,
+            transform: [{
+                visibleRect: [-0.5,1, 2, 0]
+            }],
+            background: "rgb(255,255,250)"
+        }],
+        scripts: "cs*",
+        geometry: gslp,
+        use:["katex"]
+    });
+
+</script>
+</body>
+</html>
