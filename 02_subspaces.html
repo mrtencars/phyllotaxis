@@ -23,6 +23,7 @@
     baseVector = [0,0];
     mouseInArea = false;
     baseIndex = 0;
+    varDoubleScale = 1;
 
     /*** OBJECTS ***/
     // complex number with color and <text>a</text>
@@ -49,13 +50,17 @@
         // output: projection to cylinder
         (re(z1)-floor(re(z1)+0.5)) + i*im(z1)
     );
-
+    
+    // Maps a point on the Cylinder to the plane
+    mapPointCylinderToPlane(pointP):=(
+        (pointP.y)^varDoubleScale * exp(i*(pointP.x)*360°) // output
+    );
+    
     // select the closest ctpoint to a given point
     closestCTPoint(arrCTPoints,Point):=(
         sortarr = sort(arrCTPoints,ctpoint,|ctpoint.z - complex(Point)|);
         sortarr_1;
     );
-
 
     // project a ctpoint in the plane to the cylinder
     PlaneToCylinder(CTPoint):=(
@@ -67,11 +72,11 @@
         );
     );
 
-    CylinderToPlane(CTPoint,Scaling):=(
+    CylinderToPlane(CTPoint):=(
         apply(CTPoint,val,key,
             if(key=="z",
                 p = gauss(val);
-                val = (p.y)^Scaling*exp(i*p.x*360°),
+                val = mapPointCylinderToPlane(p),
                 val = val
             );
         );
@@ -104,9 +109,10 @@
         forall(1..baseIndex,
             k = 1;
             z1 = (arrCTPoints_#).z;
+            clr =(arrCTPoints_#).c; 
             while(# + k*baseIndex <= arrLength,
                 z2 = (arrCTPoints_(# + k*baseIndex).z);
-                clr = hue(#/baseIndex);
+                //clr = hue(mod(#,baseIndex)/baseIndex);
                 if(isInCylinder(z1+complex(baseVector)),
                     draw(gauss(4*z1),gauss(4*z2),color->clr),
                     if(baseVector.x<0,
@@ -174,6 +180,53 @@
         );
         boolMouseDown = false;
     );
+    
+    // draw lagrange polynome for a list of points
+    drawLagrangePoly(pointList,colorLine):=(
+        pts=pointList;
+
+        xs=apply(pts,p,p_1);
+        ys=apply(pts,p,p_2);
+        n=length(pts);
+        ts=1..n;
+
+        f(t,k):=product(1..n--[k],j,t-ts_j);
+        px(t,i):=f(t,i)/f(ts_i,i)*xs_i;
+        py(t,i):=f(t,i)/f(ts_i,i)*ys_i;
+
+        px(t):=sum(1..n,r,px(t,r));
+        py(t):=sum(1..n,i,py(t,i));
+
+        plot((px(t),py(t)),start->1, stop->n,steps->100,size->4,color->colorLine);
+    );
+    
+    // map a affine line on the cylinder to the plane and draw it
+    drawSpiral(vecU,vecV,maxRadius,doubleSize,colorLine):=(
+        u = vecU; v = vecV;
+        R = maxRadius;
+        gamma(t):=gauss(mapPointCylinderToPlane(u+t*v));
+        // (u.y+t*v.y)^a = R <=> t*v = (R^(1/a)-u.y)/v.y
+        stopT = (R^(1/varDoubleScale)-u.y)/v.y;
+        plot(gamma(t),start->0,stop->stopT,steps->100,size->4,color->colorLine);
+    );
+    
+    // map the cylinder subspaces to the plane to get spirals
+    drawSubspaceSpirals(arrCTPoints,maxRadius):=(
+        forall(0..baseIndex,clsIndex, // go through all classes
+            clsColor = arrCTPoints_clsIndex.c; //classcolor
+            drawSpiral(gauss((arrCTPoints_clsIndex).z),baseVector,maxRadius,4,clsColor) // draw lines
+        )
+    );
+    
+    // draw cylinder subspaces in the plane (for a array of cylindrical ctpoints)
+    drawSubspacesPlane(arrCTPoints):=(
+        forall(1..baseIndex,clsIndex, // go through all classes
+            clsColor = hue(mod(clsIndex,baseIndex)/baseIndex); //classcolor
+            subCTPoints = select(arrCTPoints,ctPoint,mod(ctPoint.idx,baseIndex)==clsIndex); // ctpoints
+            subPoints = apply(subCTPoints,gauss(#.z)); // get coordinates
+            drawLagrangePoly(subPoints,clsColor) // draw lines
+        )
+    );
 
     /**** GRAPHICS ****/
     // draw cylinder
@@ -233,10 +286,11 @@
 
 <script id='csdraw' type='text/x-cindyscript'>
     strOut = text(mouseInArea) + " " ;
-    scale = 0.5+0.5*|D-B|/|C-B|;
+    varDoubleScale = 0.5+0.5*|D-B|/|C-B|;
     lattice = newCLattice(A.x/4,A.y/4);
     cylinder = createCLatticePointsH(lattice,5,1);
-    if(baseVector != [0,0],
+    if(baseIndex > 1,
+        baseVector = gauss((cylinder_(baseIndex+1)).z);
         drawLatticeCylinder(cylinder);
         cylinder = colorLattice(cylinder);
         drawLatticeCylinder(cylinder);
@@ -245,7 +299,7 @@
 
     //cylinder = colorCTPoint(cylinder,pointMouse,0.02,(1,1,0));
     //spiral = createSpiralR(lattice,scale,5);
-    spiral = apply(cylinder,ctpoint,CylinderToPlane(ctpoint,scale));
+    spiral = apply(cylinder,ctpoint,CylinderToPlane(ctpoint));
 
     xAxis = [
         newAnnotation([-2,0],"-180°"),
@@ -260,6 +314,10 @@
     clearimage("Plane");
     canvas([-5,-5],[5,-5],"Plane",
         drawLattice(spiral,9,0.0570,5);
+        if(baseIndex>1,
+            //drawSubspacesPlane(spiral);
+            drawSubspaceSpirals(cylinder,5)
+        );
     );
     drawimage([2.5,0],[12.5,0],"Plane");
 
@@ -285,8 +343,9 @@
     mouseInArea = isInArea([-0.5,3,0.5,0],pointMouse);
     if(mouseInArea,
         boolMouseDown = true;
-        baseVector = gauss((closestCTPoint(cylinder,pointMouse)).z);
-        baseIndex = closestCTPoint(cylinder,pointMouse).idx;
+        //baseVector = gauss((closestCTPoint(cylinder,pointMouse)).z);
+        index = closestCTPoint(cylinder,pointMouse).idx;
+        if(index>1, baseIndex = index);
     );
 
 </script>
