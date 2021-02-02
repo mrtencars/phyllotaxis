@@ -332,7 +332,7 @@
     clearimage("SysOutput");
     canvas([0,0],[5,0],"SysOutput",
         strOut = strOut + " Mouse: " + text(baseVector);
-        drawtext([0,0],strOut,size->8);
+        //drawtext([0,0],strOut,size->8);
     );
     drawimage([-1,-1],[13,-1],"SysOutput");
 
@@ -359,7 +359,8 @@
         {name:"D", type:"PointOnSegment", pinned:false, size:3, args: ["a"], pos:[11,-1]},
         {name:"Text0", type: "Text", color: [0,0,0], size:18, text: "Vergrößerung", pos:[7,-1]},
         {name:"Text1", type: "Text", color: [0,0,0], size:18, text: "Winkel", pos:[11.5,0.1]},
-        {name:"Text2", type: "Text", color: [0,0,0], size:18, text: "Radius", pos:[0.1,9.7]}
+        {name:"Text2", type: "Text", color: [0,0,0], size:18, text: "Radius", pos:[0.1,9.7]},
+        {name: "ButtonSpiralen", type: "ToggleButton", pos: [10, 5,1], color: [0.0, 0.0, 0.0], fillcolor: [0.0, 0.0, 1.0], fillalpha: 0.3, text: "Farbspiralen"}
     ];
 
     const cdy = CindyJS({

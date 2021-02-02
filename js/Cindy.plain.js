@@ -791,15 +791,11 @@ function createCindyNow() {
         "mousedown", "mouseup", "mousedrag", "mousemove", "mouseclick",
         "multidown", "multiup", "multidrag",
         "init", "tick", "draw",
-        "simulationstep", "simulationstart", "simulationstop", "ondrop",
-        // CindyXR plugin
-        'xrdraw', 'xrinputsourceschange',
-        'xrselectstart', 'xrselectend', 'xrselect', 'xrselecthold',
-        'xrsqueezestart', 'xrsqueezeend', 'xrsqueeze', 'xrsqueezehold'
+        "simulationstep", "simulationstart", "simulationstop", "ondrop"
     ];
     var scriptconf = data.scripts;
     var scriptpat = null;
-    if (typeof scriptconf === "string" && scriptconf.search(/\*/) >= 0)
+    if (typeof scriptconf === "string" && scriptconf.search(/\*/))
         scriptpat = scriptconf;
     if (typeof scriptconf !== "object")
         scriptconf = null;
@@ -2347,7 +2343,7 @@ function cs_onDrop(lst, pos) {
 function cindy_cancelmove() {
     move = undefined;
 }
-var version = [0,8,7,609,"g8f5be1a"];
+var version = [0,0,0,-1,"?!"];
 //==========================================
 //      Complex Numbers
 //==========================================
@@ -11360,7 +11356,6 @@ evaluator.use$1 = function(args, modifs) {
                 "config": instanceInvocationArguments,
                 "nada": nada,
                 "evaluate": evaluate,
-                "cscompiled": cscompiled,
                 "extractPoint": eval_helper.extractPoint,
                 "evaluateAndVal": evaluateAndVal,
                 "defineFunction": defineFunction,
@@ -25056,9 +25051,6 @@ geoOps.Text.initialize = function(el) {
         else
             el.dock.offset = List.realVector([0, 0]);
     }
-};
-geoOps.Text.set_text = function(el, value) {
-   el.text = niceprint(value);
 };
 geoOps.Text.getParamForInput = function(el, pos, type) {
     return geoOps.Free.getParamForInput(el, pos, type);
