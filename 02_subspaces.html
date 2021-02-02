@@ -290,7 +290,7 @@
     varDoubleScale = 0.5+0.5*|D-B|/|C-B|;
     lattice = newCLattice(A.x/4,A.y/4);
     cylinder = createCLatticePointsH(lattice,5,1);
-    if(baseIndex > 1,
+    if(baseIndex > 1 & ButtonSpirals.pressed,
         baseVector = gauss((cylinder_(baseIndex+1)).z);
         drawLatticeCylinder(cylinder);
         cylinder = colorLattice(cylinder);
@@ -315,7 +315,7 @@
     clearimage("Plane");
     canvas([-5,-5],[5,-5],"Plane",
         drawLattice(spiral,9,0.0570,5);
-        if(baseIndex>1,
+        if(baseIndex>1 & ButtonSpirals.pressed,
             //drawSubspacesPlane(spiral);
             drawSubspaceSpirals(cylinder,5)
         );
@@ -361,7 +361,7 @@
         {name:"Text0", type: "Text", color: [0,0,0], size:18, text: "Vergrößerung", pos:[7,-1]},
         {name:"Text1", type: "Text", color: [0,0,0], size:18, text: "Winkel", pos:[11.5,0.1]},
         {name:"Text2", type: "Text", color: [0,0,0], size:18, text: "Radius", pos:[0.1,9.7]},
-        {name: "ButtonSpiralen", type: "ToggleButton", pos: [10, 5,1], color: [0.0, 0.0, 0.0], fillcolor: [0.0, 0.0, 1.0], fillalpha: 0.3, text: "Farbspiralen"}
+        {name: "ButtonSpirals", type: "ToggleButton", pos: [0.5, -1], color: [0.0, 0.0, 0.0], fillcolor: [0.0, 0.0, 1.0], fillalpha: 0.3, text: "Farbspiralen"}
     ];
 
     const cdy = CindyJS({
@@ -389,5 +389,9 @@
         use:["katex"]
     });
 </script>
+<p>
+    [W,h]:&nbsp;<input type="text" id="startwert" value="[0.5,0.5]" onclick="cdy.evokeCS('anzahl = ' + this.value)">
+    <button onclick="cdy.evokeCS('A.xy=' + document.getElementById('startwert').value)" type="button">Setzen</button>
+</p>
 </body>
 </html>
