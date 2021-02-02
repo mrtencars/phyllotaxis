@@ -390,8 +390,11 @@
     });
 </script>
 <p>
-    [W,h]:&nbsp;<input type="text" id="startwert" value="[0.5,0.5]" onclick="cdy.evokeCS('anzahl = ' + this.value)">
-    <button onclick="cdy.evokeCS('A.xy=' + document.getElementById('startwert').value)" type="button">Setzen</button>
+    Winkel (in Grad):&nbsp;<input type="text" id="winkel" value="45">
+    <button onclick="cdy.evokeCS('A.x=' + document.getElementById('winkel').value + '/90;')" type="button">Setzen</button>
+    
+    Radiale Schrittweite:&nbsp;<input type="text" id="radius0" value="0.125">
+    <button onclick="cdy.evokeCS('A.y=' + document.getElementById('radius0').value + '*4;')" type="button">Setzen</button>
 </p>
 </body>
 </html>
