@@ -6,6 +6,12 @@
     <script type="text/javascript" src="./js/Cindy.js"></script>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/CindyJS.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+ 
 </head>
 <body>
 
@@ -352,19 +358,19 @@
 </script>
 <div  id="CSCanvas"></div>
 <script type="text/javascript">
-    const gslp=[
+    var gslp=[
         {name:"A", type:"Free", pinned:false, size:5, pos:[0.5,0.5]},
         {name:"B", type:"Free", visible: false, pinned:false, size:3, pos:[4,-.5]},
         {name:"C", type:"Free", visible: false, pinned:false, size:3, pos:[12,-.5]},
         {name:"a", type:"Segment", args: [ "C", "B" ],color: [0,0,0], labeled: false},
         {name:"D", type:"PointOnSegment", pinned:false, size:3, args: ["a"], pos:[11,-1]},
         {name:"Text0", type: "Text", color: [0,0,0], size:18, text: "Vergrößerung", pos:[7,-1]},
-        {name:"Text1", type: "Text", color: [0,0,0], size:18, text: "Winkel", pos:[11.5,0.1]},
+        {name:"Text1", type: "Text", color: [0,0,0], size:18, text: "Winkel", pos:[9.5,0.1]},
         {name:"Text2", type: "Text", color: [0,0,0], size:18, text: "Radius", pos:[0.1,9.7]},
         {name: "ButtonSpirals", type: "ToggleButton", pos: [0.5, -1], color: [0.0, 0.0, 0.0], fillcolor: [0.0, 0.0, 1.0], fillalpha: 0.3, text: "Farbspiralen"}
     ];
 
-    const cdy = CindyJS({
+    var cdy = CindyJS({
         ports: [{
             id: "CSCanvas",
             width: 800,
@@ -385,12 +391,12 @@
             pointSize: 5.0,
             textsize: 12.0
         },
-        geometry: gslp,
-        use:["katex"]
+        use: ["katex"],
+        geometry: gslp
     });
 </script>
 <p>
-    Winkel (in Grad):&nbsp;<input type="text" id="winkel" value="45">
+    Winkel \( \phi \) (in Grad):&nbsp;<input type="text" id="winkel" value="45">
     <button onclick="cdy.evokeCS('A.x=' + document.getElementById('winkel').value + '/90;')" type="button">Setzen</button>
     
     Radiale Schrittweite:&nbsp;<input type="text" id="radius0" value="0.125">
