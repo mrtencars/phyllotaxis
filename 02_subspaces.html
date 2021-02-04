@@ -6,6 +6,7 @@
     <script type="text/javascript" src="./js/Cindy.js"></script>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/CindyJS.css">
+    
     <!-- UIkit CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.6.15/dist/css/uikit.min.css" />
     
@@ -415,21 +416,27 @@
         Wir gehen im folgenden von 2 Eigenschaften aus:
         <ol>
             <li>Bei jeder neuen Knospe dreht sich die Konfiguration um einen bestimmten Winkel \( \phi_0 \), genannt <i>Divergenzwinkel</i>.</li>
-            <li>Bei jeder neuen Knospe wächst die Konfiguration um einen gewissen radialen Zuwachs \( h \) nach außen. </li>
+            <li>Bei jeder neuen Knospe wächst die Konfiguration um einen gewissen radialen Zuwachs \( r_0 \) nach außen. </li>
         </ol>
     <p>
 </div>
 <div id="zylinderspiralen">
-    <h2>Zylinder und Spiralen</h2>
+    <h2>2. Zylinder und Spiralen</h2>
     <p>
-        Im ersten Applet sehen wir links di
+        Im ersten Applet sehen wir links ein zylinderförmiges Koordinatensystem: Die x-Achse entspricht dem Drehwinkel und die y-Achse entspricht dem Radius, also dem Abstand einer Knospe zum Mittelpunkt. Das Koordinatensystem hat eine Besonderheit: Weil ein Winkel von 180° genau einem Winkel von  -180° entspricht, bleiben alle Punkte immer zwischen diesen beiden Winkeln. Winkel  \(\phi=180°+x\) entsprechen Winkel der Form \(\phi=-180°+x\).
+    </p>
+    <p>
+        In der rechten Hälfte sind dann die entsprechenden Punkte bzw. die Punktkonfiguration in der Ebene zu sehen. In diesem Fall sind immer nur Punkte mit einem Radius kleiner als 5 zu sehen.
+        Genau genommen wird ein Punkt im Zylinder mit den Koordinaten \( \left(\phi,r \right) \) auf 
+        $$ \left(\phi,r \right) \mapsto r\cdot e^{i\cdot\phi}$$
+        in der (komplexen) Ebene abgebildet.
     </p>
     <div  id="CSCanvas"></div>
 
     <p>
-        Winkel \( \phi \) (in Grad):&nbsp;<input type="text" id="winkel" value="45">
+        Divergenzwinkel \( \phi_0 \) (in Grad):&nbsp;<input type="text" id="winkel" value="45">
         <button onclick="cdy.evokeCS('A.x=' + document.getElementById('winkel').value + '/90;')" type="button">Setzen</button>
-        Radialer Zuwachs \(h\):&nbsp;<input type="text" id="radius0" value="0.125">
+        radialer Zuwachs \(r_0\):&nbsp;<input type="text" id="radius0" value="0.125">
         <button onclick="cdy.evokeCS('A.y=' + document.getElementById('radius0').value + '*4;')" type="button">Setzen</button>
     </p>
 </body>
