@@ -2,18 +2,23 @@
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8">
-    <title>Subspaces</title>
+    <title>Zylinder und Spiralen</title>
     <script type="text/javascript" src="./js/Cindy.js"></script>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/CindyJS.css">
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.6.15/dist/css/uikit.min.css" />
+    
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.6.15/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.6.15/dist/js/uikit-icons.min.js"></script>
+    
+    <!-- MathJax -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<script type="text/x-mathjax-config">
+    <script type="text/x-mathjax-config">
     MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-</script>
- 
-</head>
-<body>
+    </script>
 
 <script id='csinit' type='text/x-cindyscript'>
     /*** SYSOUTPUT ***/
@@ -356,7 +361,7 @@
     );
 
 </script>
-<div  id="CSCanvas"></div>
+
 <script type="text/javascript">
     var gslp=[
         {name:"A", type:"Free", pinned:false, size:5, pos:[0.5,0.5]},
@@ -395,6 +400,17 @@
         geometry: gslp
     });
 </script>
+ 
+</head>
+<body>
+<div id="Einleitung">
+    <p>
+        <h1>Zylinder und Spiralen</h1>
+        In diesem Applet soll das Wachstum von Blüten und Knospen dargestellt werden.
+    </p>
+</div>
+<div  id="CSCanvas"></div>
+
 <p>
     Winkel \( \phi \) (in Grad):&nbsp;<input type="text" id="winkel" value="45">
     <button onclick="cdy.evokeCS('A.x=' + document.getElementById('winkel').value + '/90;')" type="button">Setzen</button>
