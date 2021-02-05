@@ -4,16 +4,9 @@
     <meta charset="utf-8">
     <title>Phyllotaxis</title>
     <script type="text/javascript" src="./js/Cindy.js"></script>
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/tailwind.css">
     <link rel="stylesheet" href="./css/CindyJS.css">
-    
-    <!-- UIkit CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.6.15/dist/css/uikit.min.css" />
-    
-    <!-- UIkit JS -->
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.6.15/dist/js/uikit.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.6.15/dist/js/uikit-icons.min.js"></script>
-    
+   
     <!-- MathJax -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -428,9 +421,21 @@
     <p>
         In der rechten Hälfte sind dann die entsprechenden Punkte bzw. die Punktkonfiguration in der Ebene zu sehen. In diesem Fall sind immer nur Punkte mit einem Radius kleiner als 5 zu sehen.
         Genau genommen wird ein Punkt im Zylinder mit den Koordinaten \( \left(\phi,r \right) \) auf 
-        $$ \left(\phi,r \right) \mapsto r\cdot e^{i\cdot\phi}$$
-        in der (komplexen) Ebene abgebildet.
+        $$ \left(\phi,r \right) \mapsto z = r\cdot e^{i\cdot\phi}$$
+        in der (komplexen) Ebene abgebildet. Die Koordinaten \( \left(\phi,r \right) \) werden auch <i>Polarkoordinaten</i> von \(z\) genannt.
     </p>
+    <h3>2.1. Erste Versuche</h3>
+    <p>
+        Indem man im Zylinder den roten Punkt bewegt, kann man den Divergenzwinkel \(\phi_0\) und den radialen Zuwachs \(r_0\) einstellen. Es entstehen verschiedene Muster in der Ebene.
+    </p>
+    <div class="aufgabe btn">
+        <p>
+            <ol>
+                <li>Experimentiere mit Divergenzwinkel und radialem Zuwachs. Achte dabei auf die Form und die Anzahl von Spiralen.</li>
+                <li>Kannst Du schon Aussagen zur Abhängigkeit der Form und die Anzahl der Spiralen von Divergenzwinkel und radialem Zuwachs machen?</li>
+            </ol>
+        </p>
+    </div>
     <div  id="CSCanvas"></div>
 
     <p>
